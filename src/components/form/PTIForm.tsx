@@ -88,6 +88,33 @@ export function PTIForm() {
 
   const trailerNumber = watch('trailerNumber');
 
+  const handleDownloadPdf = async () => {
+    if (!pdfUrl) return;
+
+    try {
+      const response = await fetch(pdfUrl);
+      if (!response.ok) throw new Error('Failed to download PDF');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `PTI_Report_${Date.now()}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      haptic('success');
+    } catch (error) {
+      console.error('Download failed:', error);
+      haptic('error');
+    }
+  };
+
+
   const handleLoadTestData = async () => {
     setIsLoadingTestData(true);
     haptic('light');
@@ -287,9 +314,9 @@ export function PTIForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-      <Button 
-        type="button" 
-        fullWidth 
+      <Button
+        type="button"
+        fullWidth
         onClick={handleLoadTestData}
         disabled={isLoadingTestData}
       >
@@ -444,14 +471,14 @@ export function PTIForm() {
           <div className={styles.successMessage}>
             ✅ Inspection submitted successfully!
             {pdfUrl && (
-              <a
-                href={pdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
+                onClick={handleDownloadPdf}
                 className={styles.pdfLink}
               >
-                📄 View PDF Report
-              </a>
+                📄 Download PDF Report
+              </button>
+
             )}
           </div>
         )}
