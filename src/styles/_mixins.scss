@@ -1,0 +1,15 @@
+// src/styles/_mixins.scss
+
+@use './variables' as *;
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin card {
+  background: $bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+}

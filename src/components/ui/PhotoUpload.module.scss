@@ -1,0 +1,143 @@
+// src/components/ui/PhotoUpload.module.scss
+
+@use '../../styles/variables' as *;
+
+.photoArea {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: $bg-input;
+  border: 2px dashed $border-color;
+  border-radius: $radius-md;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color $transition-normal;
+
+  &:hover { border-color: $primary; }
+  &.hasPhoto { border-style: solid; border-color: $success; cursor: default; }
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 100%;
+  padding: $spacing-sm;
+  text-align: center;
+}
+
+.icon { color: $text-muted; }
+.name { font-size: 0.75rem; font-weight: 600; color: $text-primary; }
+.desc { font-size: 0.625rem; color: $text-muted; }
+
+.requiredBadge {
+  font-size: 0.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: $warning;
+  background: rgba($warning, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+.preview { width: 100%; height: 100%; object-fit: cover; }
+
+.removeBtn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  background: rgba(black, 0.6);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  &:hover { background: $danger; }
+}
+
+.checkBadge {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: $success;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Camera Modal
+.cameraModal {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+}
+
+.video { flex: 1; width: 100%; object-fit: cover; }
+
+.cameraHeader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  background: linear-gradient(rgba(0,0,0,0.6), transparent);
+  color: white;
+  text-align: center;
+  font-weight: 600;
+}
+
+.cameraControls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 24px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+}
+
+.captureBtn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 4px solid white;
+  background: transparent;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  &:active { transform: scale(0.95); background: rgba(white, 0.2); }
+}
+
+.cancelBtn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(white, 0.2);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.spacer { width: 48px; }

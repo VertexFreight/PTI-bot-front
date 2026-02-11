@@ -1,0 +1,64 @@
+@use '../../styles/variables' as *;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: $text-secondary;
+  padding-left: 2px;
+}
+
+.required {
+  color: $danger;
+  margin-left: 2px;
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-md;
+  font-size: 0.9375rem;
+  color: $text-primary;
+  background: $bg-input;
+  border: 1.5px solid $border-color;
+  border-radius: $radius-md;
+  outline: none;
+  transition: all $transition-fast;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:hover:not(:disabled):not(:focus) {
+    border-color: $text-muted;
+  }
+
+  &:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.hasError {
+  border-color: $danger;
+
+  &:focus {
+    border-color: $danger;
+    box-shadow: 0 0 0 3px rgba($danger, 0.15);
+  }
+}
+
+.error {
+  font-size: 0.75rem;
+  color: $danger;
+  padding-left: 2px;
+}

@@ -1,0 +1,71 @@
+@use "sass:color";
+@use '../../styles/variables' as *;
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  border: none;
+  border-radius: $radius-md;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all $transition-normal;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.primary {
+  background: $primary;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: color.adjust($primary, $lightness: 5%);
+  }
+}
+
+.secondary {
+  background: $bg-input;
+  color: $text-primary;
+
+  &:hover:not(:disabled) {
+    background: color.adjust($bg-input, $lightness: 5%);
+  }
+}
+
+.sm {
+  padding: $spacing-sm $spacing-md;
+  font-size: 0.875rem;
+}
+
+.md {
+  padding: $spacing-md $spacing-lg;
+  font-size: 1rem;
+}
+
+.lg {
+  padding: $spacing-lg $spacing-xl;
+  font-size: 1.125rem;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(white, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

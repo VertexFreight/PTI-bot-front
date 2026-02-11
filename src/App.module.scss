@@ -1,0 +1,37 @@
+// src/App.module.scss
+
+@use './styles/variables' as *;
+
+.app {
+  min-height: 100vh;
+  background: $bg-dark;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: $bg-card;
+  padding: $spacing-md $spacing-lg;
+  padding-top: calc($spacing-md + env(safe-area-inset-top, 0px));
+  border-bottom: 1px solid rgba(white, 0.05);
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0;
+}
+
+.greeting {
+  font-size: 0.8125rem;
+  color: $text-muted;
+  margin: 4px 0 0;
+}
+
+.main {
+  padding: $spacing-md;
+  max-width: 800px;
+  margin: 0 auto;
+}

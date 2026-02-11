@@ -1,0 +1,60 @@
+// src/components/ui/FunctionalTestItem.module.scss
+
+@use '../../styles/variables' as *;
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: $bg-input;
+  border-radius: $radius-md;
+  border: 2px solid transparent;
+  transition: border-color $transition-normal;
+
+  &.pass { border-color: $success; }
+  &.fail { border-color: $danger; }
+}
+
+.icon {
+  font-size: 1.25rem;
+}
+
+.name {
+  flex: 1;
+  font-size: 0.875rem;
+  color: $text-primary;
+}
+
+.buttons {
+  display: flex;
+  gap: $spacing-xs;
+}
+
+.btn {
+  width: 36px;
+  height: 36px;
+  border: 2px solid $border-color;
+  border-radius: $radius-sm;
+  background: transparent;
+  color: $text-muted;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover { border-color: $text-secondary; }
+}
+
+.passBtn.active {
+  background: rgba($success, 0.2);
+  border-color: $success;
+  color: $success;
+}
+
+.failBtn.active {
+  background: rgba($danger, 0.2);
+  border-color: $danger;
+  color: $danger;
+}

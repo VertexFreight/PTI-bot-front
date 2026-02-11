@@ -1,0 +1,41 @@
+// src/components/ui/Card.module.scss
+
+@use '../../styles/variables' as *;
+
+.card {
+  background: $bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: rgba($primary, 0.15);
+  border-radius: $radius-md;
+  color: $primary;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.8125rem;
+  color: $text-muted;
+  margin: 2px 0 0;
+}

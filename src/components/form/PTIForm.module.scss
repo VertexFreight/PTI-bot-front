@@ -1,0 +1,173 @@
+@use "sass:color";
+@use '../../styles/variables' as *;
+
+.form {
+  padding-bottom: 160px;
+}
+
+.grid {
+  display: grid;
+  gap: $spacing-md;
+}
+
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-sm;
+
+  @media (min-width: 480px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.checkNote {
+  font-size: 0.8125rem;
+  color: $warning;
+  background: rgba($warning, 0.1);
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-sm;
+  margin-bottom: $spacing-md;
+}
+
+.checkCategory {
+  margin-bottom: $spacing-lg;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.categoryTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: $spacing-sm;
+  padding-bottom: $spacing-xs;
+  border-bottom: 1px solid $border-color;
+}
+
+.checkList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.checkItem {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  padding: $spacing-sm;
+  background: $bg-card;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: color.adjust($bg-card, $lightness: 3%);
+  }
+
+  &:has(input:checked) {
+    background: rgba($success, 0.1);
+    border: 1px solid rgba($success, 0.3);
+  }
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  accent-color: $success;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.checkContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.checkLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $text-primary;
+}
+
+.required {
+  color: red;
+  margin-left: 2px;
+}
+
+.checkDesc {
+  font-size: 0.75rem;
+  color: $text-muted;
+}
+
+.submitArea {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, $bg-dark 30%);
+  padding: $spacing-lg;
+  padding-bottom: calc($spacing-lg + env(safe-area-inset-bottom, 0px));
+}
+
+.remaining {
+  text-align: center;
+  margin-top: $spacing-sm;
+
+  p {
+    font-size: 0.8125rem;
+    color: $warning;
+    margin: $spacing-xs 0;
+  }
+}
+
+.hint {
+  text-align: center;
+  font-size: 0.8125rem;
+  color: $warning;
+  margin-top: $spacing-sm;
+}
+
+.note {
+  text-align: center;
+  font-size: 0.75rem;
+  color: $text-muted;
+  margin-top: $spacing-sm;
+}
+
+.successMessage {
+  text-align: center;
+  font-size: 1rem;
+  color: $success;
+  background: rgba($success, 0.15);
+  padding: $spacing-md;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+}
+
+.pdfLink {
+  display: block;
+  margin-top: $spacing-sm;
+  color: $primary;
+  text-decoration: underline;
+  font-size: 0.9375rem;
+
+  &:hover {
+    color: color.adjust($primary, $lightness: 10%);
+  }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
