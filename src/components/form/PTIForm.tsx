@@ -314,14 +314,14 @@ export function PTIForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-      <Button
+      {/* <Button
         type="button"
         fullWidth
         onClick={handleLoadTestData}
         disabled={isLoadingTestData}
       >
         {isLoadingTestData ? '⏳ Loading...' : '🧪 Load Test Data'}
-      </Button>
+      </Button> */}
 
       <Card title="Vehicle Information" icon={<Truck size={20} />}>
         <div className={styles.grid}>
@@ -334,12 +334,12 @@ export function PTIForm() {
             {...register('unitNumber')}
           />
 
-          <Input
+          {/* <Input
             label="Trailer Number"
             {...register('trailerNumber', {
               onChange: e => setHasTrailer(!!e.target.value),
             })}
-          />
+          /> */}
 
           <Controller
             name="odometer"
