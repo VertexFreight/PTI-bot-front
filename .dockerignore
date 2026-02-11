@@ -45,5 +45,4 @@ docker-compose*.yml
 .eslintrc.json
 
 dist
-
-uploads
+build

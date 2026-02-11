@@ -1,19 +1,23 @@
 FROM node:20-alpine AS builder
+
 WORKDIR /app
+
 COPY package*.json ./
-COPY prisma ./prisma/
 RUN npm ci
+
 COPY . .
-RUN npx prisma generate
+
 RUN npm run build
-FROM node:20-alpine AS production
-WORKDIR /app
-COPY package*.json ./
-COPY prisma ./prisma/
-RUN npm ci --only=production
-RUN npx prisma generate
-COPY --from=builder /app/dist ./dist
-ENV NODE_ENV=production
-ENV PORT=8080
+
+
+FROM nginx:alpine
+
+RUN rm -rf /usr/share/nginx/html/*
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+
 EXPOSE 8080
-CMD ["node", "dist/main.js"]
+
+RUN sed -i 's/listen       80;/listen       8080;/' /etc/nginx/conf.d/default.conf
+
+CMD ["nginx", "-g", "daemon off;"]
