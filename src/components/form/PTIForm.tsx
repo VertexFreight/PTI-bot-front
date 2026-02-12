@@ -12,50 +12,10 @@ import {
   MANUAL_CHECKS,
 } from '../../lib/photoShots';
 import { useTelegram } from '../../hooks/useTelegram';
-import type { PhotoData } from '../../types';
+import type { CheckItem, FormData, PhotoData } from '../../types';
 
 import styles from './PTIForm.module.scss';
-
-interface FormData {
-  driverName: string;
-  unitNumber: string;
-  trailerNumber: string;
-  odometer: number;
-}
-
-interface CheckItem {
-  id: string;
-  label: string;
-  description: string;
-  category: string;
-  critical: boolean;
-}
-
-const API_URL = "https://pti-bot-839184709762.europe-west1.run.app";
-
-const TEST_PHOTO_MAP: Record<string, string> = {
-  'front': 'frontview.jpg',
-  'left_side': 'leftview.jpg',
-  'right_side': 'rightview.jpg',
-  'rear_drive_axle': 'rareview.jpg',
-  'engine': 'enginecompartment.jpg',
-  'driver_wheels_brakes': 'driverbrakes.jpg',
-  'passenger_wheels_brakes': 'passengerbrakes.jpg',
-  'interior': 'interior.jpg',
-  'dashboard': 'dashboard.jpg',
-  'fifth_wheel': 'enginecompartment.jpg',
-  'air_lines': 'enginecompartment.jpg',
-};
-
-const testImages = import.meta.glob('../../photos/*', {
-  eager: true,
-  as: 'url',
-}) as Record<string, string>;
-
-const getTestImageUrl = (filename: string): string | undefined => {
-  const key = Object.keys(testImages).find(k => k.endsWith(filename));
-  return key ? testImages[key] : undefined;
-};
+import { API_URL, getTestImageUrl, TEST_PHOTO_MAP } from '../../constants';
 
 export function PTIForm() {
   const [photos, setPhotos] = useState<Record<string, PhotoData>>({});
@@ -88,101 +48,74 @@ export function PTIForm() {
 
   const trailerNumber = watch('trailerNumber');
 
-  const handleDownloadPdf = async () => {
-    if (!pdfUrl) return;
+  // const handleLoadTestData = async () => {
+  //   setIsLoadingTestData(true);
+  //   haptic('light');
 
-    try {
-      const response = await fetch(pdfUrl);
-      if (!response.ok) throw new Error('Failed to download PDF');
+  //   try {
+  //     const allShots = [
+  //       ...TRACTOR_PHOTOS,
+  //       ...COUPLING_PHOTOS,
+  //       ...TRAILER_PHOTOS,
+  //     ];
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+  //     const newPhotos: Record<string, PhotoData> = {};
 
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `PTI_Report_${Date.now()}.pdf`;
-      document.body.appendChild(link);
-      link.click();
+  //     for (const shot of allShots) {
+  //       const filename = TEST_PHOTO_MAP[shot.id];
+  //       if (!filename) {
+  //         console.warn(`No test photo mapped for: ${shot.id}`);
+  //         continue;
+  //       }
 
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+  //       const imageUrl = getTestImageUrl(filename);
+  //       if (!imageUrl) {
+  //         console.warn(`Test image not found: ${filename}`);
+  //         continue;
+  //       }
 
-      haptic('success');
-    } catch (error) {
-      console.error('Download failed:', error);
-      haptic('error');
-    }
-  };
+  //       try {
+  //         const response = await fetch(imageUrl);
+  //         const blob = await response.blob();
 
+  //         const file = new File([blob], `${shot.id}.jpg`, {
+  //           type: 'image/jpeg',
+  //         });
 
-  const handleLoadTestData = async () => {
-    setIsLoadingTestData(true);
-    haptic('light');
+  //         newPhotos[shot.id] = {
+  //           file,
+  //           preview: imageUrl,
+  //         };
+  //       } catch (err) {
+  //         console.error(`Failed to load ${shot.id}:`, err);
+  //       }
+  //     }
 
-    try {
-      const allShots = [
-        ...TRACTOR_PHOTOS,
-        ...COUPLING_PHOTOS,
-        ...TRAILER_PHOTOS,
-      ];
+  //     setPhotos(newPhotos);
 
-      const newPhotos: Record<string, PhotoData> = {};
+  //     const newChecks: Record<string, boolean> = {};
+  //     MANUAL_CHECKS.forEach(check => {
+  //       if (check.critical) {
+  //         newChecks[check.id] = true;
+  //       }
+  //     });
+  //     setManualChecks(newChecks);
 
-      for (const shot of allShots) {
-        const filename = TEST_PHOTO_MAP[shot.id];
-        if (!filename) {
-          console.warn(`No test photo mapped for: ${shot.id}`);
-          continue;
-        }
+  //     setHasTrailer(true);
 
-        const imageUrl = getTestImageUrl(filename);
-        if (!imageUrl) {
-          console.warn(`Test image not found: ${filename}`);
-          continue;
-        }
+  //     setValue('driverName', 'Test Driver');
+  //     setValue('unitNumber', '7020');
+  //     setValue('trailerNumber', '9001');
+  //     setValue('odometer', 123456);
 
-        try {
-          const response = await fetch(imageUrl);
-          const blob = await response.blob();
-
-          const file = new File([blob], `${shot.id}.jpg`, {
-            type: 'image/jpeg',
-          });
-
-          newPhotos[shot.id] = {
-            file,
-            preview: imageUrl,
-          };
-        } catch (err) {
-          console.error(`Failed to load ${shot.id}:`, err);
-        }
-      }
-
-      setPhotos(newPhotos);
-
-      const newChecks: Record<string, boolean> = {};
-      MANUAL_CHECKS.forEach(check => {
-        if (check.critical) {
-          newChecks[check.id] = true;
-        }
-      });
-      setManualChecks(newChecks);
-
-      setHasTrailer(true);
-
-      setValue('driverName', 'Test Driver');
-      setValue('unitNumber', '7020');
-      setValue('trailerNumber', '9001');
-      setValue('odometer', 123456);
-
-      haptic('success');
-    } catch (error) {
-      console.error('Failed to load test data:', error);
-      haptic('error');
-    } finally {
-      setIsLoadingTestData(false);
-    }
-  };
+  //     haptic('success');
+  //   } catch (error) {
+  //     console.error('Failed to load test data:', error);
+  //     haptic('error');
+  //   } finally {
+  //     setIsLoadingTestData(false);
+  //   }
+  // };
 
   const handlePhotoCapture = useCallback((id: string, file: File) => {
     haptic('light');
@@ -467,22 +400,6 @@ export function PTIForm() {
       </Card>
 
       <div className={styles.submitArea}>
-        {submitResult === 'success' && (
-          <div className={styles.successMessage}>
-            ✅ Inspection submitted successfully!
-            {pdfUrl && (
-              <button
-                type="button"
-                onClick={handleDownloadPdf}
-                className={styles.pdfLink}
-              >
-                📄 Download PDF Report
-              </button>
-
-            )}
-          </div>
-        )}
-
         <Button
           type="submit"
           size="lg"

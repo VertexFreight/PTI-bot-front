@@ -39,3 +39,18 @@ declare global {
     Telegram?: { WebApp: TelegramWebApp };
   }
 }
+
+export interface FormData {
+  driverName: string;
+  unitNumber: string;
+  trailerNumber: string;
+  odometer: number;
+}
+
+export interface CheckItem {
+  id: string;
+  label: string;
+  description: string;
+  category: string;
+  critical: boolean;
+}
