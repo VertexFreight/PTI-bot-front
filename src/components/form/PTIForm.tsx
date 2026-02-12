@@ -15,17 +15,15 @@ import { useTelegram } from '../../hooks/useTelegram';
 import type { CheckItem, FormData, PhotoData } from '../../types';
 
 import styles from './PTIForm.module.scss';
-import { API_URL, getTestImageUrl, TEST_PHOTO_MAP } from '../../constants';
+import { API_URL } from '../../constants';
 
 export function PTIForm() {
   const [photos, setPhotos] = useState<Record<string, PhotoData>>({});
   const [manualChecks, setManualChecks] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState('');
-  const [hasTrailer, setHasTrailer] = useState(false);
+  const [hasTrailer] = useState(false);
   const [submitResult, setSubmitResult] = useState<'success' | 'error' | null>(null);
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [isLoadingTestData, setIsLoadingTestData] = useState(false);
 
   const { sendData, haptic, user } = useTelegram();
 
@@ -33,7 +31,6 @@ export function PTIForm() {
     register,
     handleSubmit,
     control,
-    setValue,
     formState: { errors },
     watch,
   } = useForm<FormData>({
@@ -177,7 +174,6 @@ export function PTIForm() {
 
     setIsSubmitting(true);
     setSubmitResult(null);
-    setPdfUrl(null);
     haptic('light');
 
     try {
@@ -234,7 +230,6 @@ export function PTIForm() {
       haptic('success');
       setUploadProgress('✅ Complete!');
       setSubmitResult('success');
-      setPdfUrl(inspection.pdfUrl);
     } catch (err) {
       console.error('Submit error:', err);
       haptic('error');
