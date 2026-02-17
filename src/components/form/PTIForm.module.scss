@@ -1,5 +1,3 @@
-// src/components/form/PTIForm.module.scss
-
 @use '../../styles/variables' as *;
 
 .form {
@@ -48,7 +46,6 @@
   }
 }
 
-// Manual Checks Section
 .checkNote {
   font-size: 0.8125rem;
   color: $text-primary;
@@ -221,7 +218,6 @@
   }
 }
 
-// Legacy checkbox (if still used)
 .checkbox {
   width: 20px;
   height: 20px;
@@ -237,7 +233,6 @@
   gap: 2px;
 }
 
-// Submit Area
 .submitArea {
   position: fixed;
   bottom: 0;
@@ -329,7 +324,6 @@
   }
 }
 
-// Summary stats
 .checkSummary {
   display: flex;
   gap: $spacing-md;
