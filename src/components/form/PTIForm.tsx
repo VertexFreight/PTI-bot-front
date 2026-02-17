@@ -17,9 +17,11 @@ import type { CheckItem, FormData, PhotoData } from '../../types';
 import styles from './PTIForm.module.scss';
 import { API_URL } from '../../constants';
 
+type CheckStatus = 'unchecked' | 'pass' | 'fail';
+
 export function PTIForm() {
   const [photos, setPhotos] = useState<Record<string, PhotoData>>({});
-  const [manualChecks, setManualChecks] = useState<Record<string, boolean>>({});
+  const [manualChecks, setManualChecks] = useState<Record<string, CheckStatus>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState('');
   const [hasTrailer] = useState(false);
@@ -45,75 +47,6 @@ export function PTIForm() {
 
   const trailerNumber = watch('trailerNumber');
 
-  // const handleLoadTestData = async () => {
-  //   setIsLoadingTestData(true);
-  //   haptic('light');
-
-  //   try {
-  //     const allShots = [
-  //       ...TRACTOR_PHOTOS,
-  //       ...COUPLING_PHOTOS,
-  //       ...TRAILER_PHOTOS,
-  //     ];
-
-  //     const newPhotos: Record<string, PhotoData> = {};
-
-  //     for (const shot of allShots) {
-  //       const filename = TEST_PHOTO_MAP[shot.id];
-  //       if (!filename) {
-  //         console.warn(`No test photo mapped for: ${shot.id}`);
-  //         continue;
-  //       }
-
-  //       const imageUrl = getTestImageUrl(filename);
-  //       if (!imageUrl) {
-  //         console.warn(`Test image not found: ${filename}`);
-  //         continue;
-  //       }
-
-  //       try {
-  //         const response = await fetch(imageUrl);
-  //         const blob = await response.blob();
-
-  //         const file = new File([blob], `${shot.id}.jpg`, {
-  //           type: 'image/jpeg',
-  //         });
-
-  //         newPhotos[shot.id] = {
-  //           file,
-  //           preview: imageUrl,
-  //         };
-  //       } catch (err) {
-  //         console.error(`Failed to load ${shot.id}:`, err);
-  //       }
-  //     }
-
-  //     setPhotos(newPhotos);
-
-  //     const newChecks: Record<string, boolean> = {};
-  //     MANUAL_CHECKS.forEach(check => {
-  //       if (check.critical) {
-  //         newChecks[check.id] = true;
-  //       }
-  //     });
-  //     setManualChecks(newChecks);
-
-  //     setHasTrailer(true);
-
-  //     setValue('driverName', 'Test Driver');
-  //     setValue('unitNumber', '7020');
-  //     setValue('trailerNumber', '9001');
-  //     setValue('odometer', 123456);
-
-  //     haptic('success');
-  //   } catch (error) {
-  //     console.error('Failed to load test data:', error);
-  //     haptic('error');
-  //   } finally {
-  //     setIsLoadingTestData(false);
-  //   }
-  // };
-
   const handlePhotoCapture = useCallback((id: string, file: File) => {
     haptic('light');
     setPhotos(prev => ({
@@ -132,9 +65,9 @@ export function PTIForm() {
     });
   }, [haptic]);
 
-  const handleManualCheck = useCallback((id: string, checked: boolean) => {
+  const handleManualCheck = useCallback((id: string, status: CheckStatus) => {
     haptic('light');
-    setManualChecks(prev => ({ ...prev, [id]: checked }));
+    setManualChecks(prev => ({ ...prev, [id]: status }));
   }, [haptic]);
 
   const requiredTractorPhotos = TRACTOR_PHOTOS.filter(p => p.required);
@@ -146,8 +79,13 @@ export function PTIForm() {
   const allPhotosComplete = completedPhotos === allRequiredPhotos.length;
 
   const criticalChecks = MANUAL_CHECKS.filter(c => c.critical);
-  const completedChecks = criticalChecks.filter(c => manualChecks[c.id]).length;
-  const allChecksComplete = completedChecks === criticalChecks.length;
+  const completedCriticalChecks = criticalChecks.filter(
+    c => manualChecks[c.id] === 'pass' || manualChecks[c.id] === 'fail'
+  ).length;
+  const allChecksComplete = completedCriticalChecks === criticalChecks.length;
+
+  const passedChecks = Object.values(manualChecks).filter(s => s === 'pass').length;
+  const failedChecks = Object.values(manualChecks).filter(s => s === 'fail').length;
 
   const canSubmit = allPhotosComplete && allChecksComplete;
 
@@ -200,6 +138,15 @@ export function PTIForm() {
 
       setUploadProgress('🔍 Analyzing with AI...');
 
+      const manualChecksPayload: Record<string, boolean> = {};
+      Object.entries(manualChecks).forEach(([id, status]) => {
+        if (status === 'pass') {
+          manualChecksPayload[id] = true;
+        } else if (status === 'fail') {
+          manualChecksPayload[id] = false;
+        }
+      });
+
       const payload = {
         telegramId: user?.id || null,
         driverName: data.driverName || user?.first_name || 'Driver',
@@ -207,7 +154,7 @@ export function PTIForm() {
         trailerUnitNumber: data.trailerNumber || null,
         odometer: data.odometer,
         photos: uploadedPhotos,
-        manualChecks,
+        manualChecks: manualChecksPayload,
       };
 
       const res = await fetch(`${API_URL}/inspections`, {
@@ -242,14 +189,6 @@ export function PTIForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-      {/* <Button
-        type="button"
-        fullWidth
-        onClick={handleLoadTestData}
-        disabled={isLoadingTestData}
-      >
-        {isLoadingTestData ? '⏳ Loading...' : '🧪 Load Test Data'}
-      </Button> */}
 
       <Card title="Vehicle Information" icon={<Truck size={20} />}>
         <div className={styles.grid}>
@@ -261,13 +200,6 @@ export function PTIForm() {
             required
             {...register('unitNumber')}
           />
-
-          {/* <Input
-            label="Trailer Number"
-            {...register('trailerNumber', {
-              onChange: e => setHasTrailer(!!e.target.value),
-            })}
-          /> */}
 
           <Controller
             name="odometer"
@@ -355,11 +287,11 @@ export function PTIForm() {
 
       <Card
         title="Manual Checks"
-        subtitle={`${completedChecks}/${criticalChecks.length} critical`}
+        subtitle={`${passedChecks} ✓ ${failedChecks > 0 ? `/ ${failedChecks} ✗` : ''}`}
         icon={<CheckSquare size={20} />}
       >
         <p className={styles.checkNote}>
-          ⚠️ These items cannot be detected by photos. Please verify manually.
+          ⚠️ Test each item and mark as Pass ✓ or Fail ✗
         </p>
 
         {Object.entries(checksByCategory).map(([category, checks]) => (
@@ -368,27 +300,42 @@ export function PTIForm() {
               {categoryLabels[category] || category}
             </h4>
             <div className={styles.checkList}>
-              {checks.map((check: CheckItem) => (
-                <label key={check.id} className={styles.checkItem}>
-                  <input
-                    type="checkbox"
-                    checked={manualChecks[check.id] || false}
-                    onChange={e => handleManualCheck(check.id, e.target.checked)}
-                    className={styles.checkbox}
-                  />
-                  <span className={styles.checkContent}>
-                    <span className={styles.checkLabel}>
-                      {check.label}
-                      {check.critical && (
-                        <span className={styles.required}>*</span>
-                      )}
-                    </span>
-                    <span className={styles.checkDesc}>
-                      {check.description}
-                    </span>
-                  </span>
-                </label>
-              ))}
+              {checks.map((check: CheckItem) => {
+                const status = manualChecks[check.id] || 'unchecked';
+                return (
+                  <div key={check.id} className={styles.checkItem}>
+                    <div className={styles.checkInfo}>
+                      <span className={styles.checkLabel}>
+                        {check.label}
+                        {check.critical && (
+                          <span className={styles.required}>*</span>
+                        )}
+                      </span>
+                      <span className={styles.checkDesc}>
+                        {check.description}
+                      </span>
+                    </div>
+                    <div className={styles.checkButtons}>
+                      <button
+                        type="button"
+                        className={`${styles.checkBtn} ${styles.passBtn} ${status === 'pass' ? styles.active : ''}`}
+                        onClick={() => handleManualCheck(check.id, status === 'pass' ? 'unchecked' : 'pass')}
+                        aria-label="Pass"
+                      >
+                        ✓
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.checkBtn} ${styles.failBtn} ${status === 'fail' ? styles.active : ''}`}
+                        onClick={() => handleManualCheck(check.id, status === 'fail' ? 'unchecked' : 'fail')}
+                        aria-label="Fail"
+                      >
+                        ✗
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         ))}
@@ -426,9 +373,15 @@ export function PTIForm() {
             )}
             {!allChecksComplete && (
               <p>
-                ☑️ {criticalChecks.length - completedChecks} manual checks remaining
+                ☑️ {criticalChecks.length - completedCriticalChecks} checks remaining (mark ✓ or ✗)
               </p>
             )}
+          </div>
+        )}
+
+        {failedChecks > 0 && (
+          <div className={styles.warningMessage}>
+            ⚠️ {failedChecks} item{failedChecks > 1 ? 's' : ''} marked as failed - vehicle may be UNSAFE
           </div>
         )}
       </div>
