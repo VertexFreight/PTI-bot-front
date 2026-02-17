@@ -17,6 +17,7 @@ import type { CheckItem, FormData, PhotoData } from '../../types';
 import styles from './PTIForm.module.scss';
 import { API_URL } from '../../constants';
 
+// Manual check status type
 type CheckStatus = 'unchecked' | 'pass' | 'fail';
 
 export function PTIForm() {
@@ -78,14 +79,17 @@ export function PTIForm() {
   const completedPhotos = allRequiredPhotos.filter(p => photos[p.id]).length;
   const allPhotosComplete = completedPhotos === allRequiredPhotos.length;
 
+  // Critical checks must be either 'pass' or 'fail' (not 'unchecked')
   const criticalChecks = MANUAL_CHECKS.filter(c => c.critical);
   const completedCriticalChecks = criticalChecks.filter(
     c => manualChecks[c.id] === 'pass' || manualChecks[c.id] === 'fail'
   ).length;
   const allChecksComplete = completedCriticalChecks === criticalChecks.length;
 
+  // Count passed and failed
   const passedChecks = Object.values(manualChecks).filter(s => s === 'pass').length;
   const failedChecks = Object.values(manualChecks).filter(s => s === 'fail').length;
+  const pendingChecks = criticalChecks.length - completedCriticalChecks;
 
   const canSubmit = allPhotosComplete && allChecksComplete;
 
@@ -138,6 +142,7 @@ export function PTIForm() {
 
       setUploadProgress('🔍 Analyzing with AI...');
 
+      // Convert manualChecks to backend format
       const manualChecksPayload: Record<string, boolean> = {};
       Object.entries(manualChecks).forEach(([id, status]) => {
         if (status === 'pass') {
@@ -287,12 +292,28 @@ export function PTIForm() {
 
       <Card
         title="Manual Checks"
-        subtitle={`${passedChecks} ✓ ${failedChecks > 0 ? `/ ${failedChecks} ✗` : ''}`}
+        subtitle={`${completedCriticalChecks}/${criticalChecks.length}`}
         icon={<CheckSquare size={20} />}
       >
-        <p className={styles.checkNote}>
-          ⚠️ Test each item and mark as Pass ✓ or Fail ✗
-        </p>
+        <div className={styles.checkNote}>
+          Test each item and mark as <strong>OK</strong> or <strong>DEFECT</strong>
+        </div>
+
+        {/* Summary Stats */}
+        <div className={styles.checkSummary}>
+          <div className={`${styles.summaryItem} ${styles.summaryPass}`}>
+            <span className={styles.summaryCount} style={{ color: '#22c55e' }}>{passedChecks}</span>
+            <span className={styles.summaryLabel}>Passed</span>
+          </div>
+          <div className={`${styles.summaryItem} ${styles.summaryFail}`}>
+            <span className={styles.summaryCount} style={{ color: '#ef4444' }}>{failedChecks}</span>
+            <span className={styles.summaryLabel}>Failed</span>
+          </div>
+          <div className={`${styles.summaryItem} ${styles.summaryPending}`}>
+            <span className={styles.summaryCount} style={{ color: '#f59e0b' }}>{pendingChecks}</span>
+            <span className={styles.summaryLabel}>Pending</span>
+          </div>
+        </div>
 
         {Object.entries(checksByCategory).map(([category, checks]) => (
           <div key={category} className={styles.checkCategory}>
@@ -303,7 +324,10 @@ export function PTIForm() {
               {checks.map((check: CheckItem) => {
                 const status = manualChecks[check.id] || 'unchecked';
                 return (
-                  <div key={check.id} className={styles.checkItem}>
+                  <div
+                    key={check.id}
+                    className={`${styles.checkItem} ${status === 'pass' ? styles.statusPass : ''} ${status === 'fail' ? styles.statusFail : ''}`}
+                  >
                     <div className={styles.checkInfo}>
                       <span className={styles.checkLabel}>
                         {check.label}
@@ -320,17 +344,19 @@ export function PTIForm() {
                         type="button"
                         className={`${styles.checkBtn} ${styles.passBtn} ${status === 'pass' ? styles.active : ''}`}
                         onClick={() => handleManualCheck(check.id, status === 'pass' ? 'unchecked' : 'pass')}
-                        aria-label="Pass"
+                        aria-label="OK"
                       >
-                        ✓
+                        <span className={styles.btnIcon}>✓</span>
+                        <span className={styles.btnLabel}>OK</span>
                       </button>
                       <button
                         type="button"
                         className={`${styles.checkBtn} ${styles.failBtn} ${status === 'fail' ? styles.active : ''}`}
                         onClick={() => handleManualCheck(check.id, status === 'fail' ? 'unchecked' : 'fail')}
-                        aria-label="Fail"
+                        aria-label="Defect"
                       >
-                        ✗
+                        <span className={styles.btnIcon}>✗</span>
+                        <span className={styles.btnLabel}>Defect</span>
                       </button>
                     </div>
                   </div>
@@ -373,7 +399,7 @@ export function PTIForm() {
             )}
             {!allChecksComplete && (
               <p>
-                ☑️ {criticalChecks.length - completedCriticalChecks} checks remaining (mark ✓ or ✗)
+                ☑️ {pendingChecks} checks remaining
               </p>
             )}
           </div>
@@ -381,7 +407,7 @@ export function PTIForm() {
 
         {failedChecks > 0 && (
           <div className={styles.warningMessage}>
-            ⚠️ {failedChecks} item{failedChecks > 1 ? 's' : ''} marked as failed - vehicle may be UNSAFE
+            {failedChecks} defect{failedChecks > 1 ? 's' : ''} found - vehicle may be UNSAFE
           </div>
         )}
       </div>
