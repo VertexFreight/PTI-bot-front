@@ -129,19 +129,20 @@ export const TRACTOR_PHOTOS: PhotoShot[] = [
 
 export const COUPLING_PHOTOS: PhotoShot[] = [
   {
-    id: 'fifth_wheel',
-    label: 'Fifth Wheel',
-    description: 'Fifth wheel coupling showing kingpin engagement',
+    id: 'air_lines',
+    label: 'Air Lines & Electrical',
+    description: 'Glad hands, air lines, electrical cord connection',
     required: true,
     category: 'coupling',
     tips: [
-      'Jaws locked around kingpin',
-      'Release handle in locked position',
-      'No gap between trailer apron',
-      'Grease level adequate',
+      'Glad hands fully connected',
+      'Air lines not kinked/cut',
+      'Electrical cord connected',
+      'Lines not dragging',
     ],
-  }
+  },
 ];
+
 
 export const TRAILER_PHOTOS: PhotoShot[] = [
   {
