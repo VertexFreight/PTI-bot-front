@@ -3,7 +3,7 @@ export interface PhotoShot {
   label: string;
   description: string;
   required: boolean;
-  category: 'tractor' | 'coupling';
+  category: 'tractor' | 'coupling' | 'trailer';
   tips: string[];
 }
 
@@ -140,23 +140,61 @@ export const COUPLING_PHOTOS: PhotoShot[] = [
       'No gap between trailer apron',
       'Grease level adequate',
     ],
+  }
+];
+
+export const TRAILER_PHOTOS: PhotoShot[] = [
+  {
+    id: 'trailer_front',
+    label: 'Trailer Front',
+    description: 'Photo of the front of the trailer',
+    required: true,
+    category: 'trailer',
+    tips: [
+      'Entire front of trailer visible',
+      'No obstructions',
+      'License plate clearly visible',
+    ],
   },
   {
-    id: 'air_lines',
-    label: 'Air Lines & Electrical',
-    description: 'Glad hands, air lines, electrical cord connection',
+    id: 'trailer_back',
+    label: 'Trailer Back',
+    description: 'Photo of the rear of the trailer',
     required: true,
-    category: 'coupling',
+    category: 'trailer',
     tips: [
-      'Glad hands fully connected',
-      'Air lines not kinked/cut',
-      'Electrical cord connected',
-      'Lines not dragging',
+      'Rear doors fully visible',
+      'License plate clearly visible',
+      'No obstructions or damage hiding details',
+    ],
+  },
+  {
+    id: 'trailer_left',
+    label: 'Trailer Left Side',
+    description: 'Photo of the left side of the trailer',
+    required: true,
+    category: 'trailer',
+    tips: [
+      'Show wheels and side panels',
+      'No missing parts',
+      'No damage or scratches',
+    ],
+  },
+  {
+    id: 'trailer_right',
+    label: 'Trailer Right Side',
+    description: 'Photo of the right side of the trailer',
+    required: true,
+    category: 'trailer',
+    tips: [
+      'Show wheels and side panels',
+      'No missing parts',
+      'No damage or scratches',
     ],
   },
 ];
 
-export const TRAILER_PHOTOS: PhotoShot[] = [];
+
 
 export interface ManualCheck {
   id: string;

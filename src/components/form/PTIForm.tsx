@@ -14,18 +14,24 @@ import {
 import { useTelegram } from '../../hooks/useTelegram';
 import type { CheckItem, FormData, PhotoData } from '../../types';
 
-import styles from './PTIForm.module.scss';
 import { API_URL } from '../../constants';
 
-// Manual check status type
+import styles from './PTIForm.module.scss';
+
 type CheckStatus = 'unchecked' | 'pass' | 'fail';
+
+// Trailer-specific checks
+const TRAILER_CHECKS: CheckItem[] = [
+  { id: 'trailer_lights', label: 'Trailer Lights', description: 'Check all trailer lights', category: 'trailer', critical: true },
+  { id: 'trailer_brakes', label: 'Trailer Brakes', description: 'Test trailer brakes', category: 'trailer', critical: true },
+  { id: 'trailer_coupling', label: 'Coupling & Hitch', description: 'Inspect coupling', category: 'trailer', critical: true },
+];
 
 export function PTIForm() {
   const [photos, setPhotos] = useState<Record<string, PhotoData>>({});
   const [manualChecks, setManualChecks] = useState<Record<string, CheckStatus>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState('');
-  const [hasTrailer] = useState(false);
   const [submitResult, setSubmitResult] = useState<'success' | 'error' | null>(null);
 
   const { sendData, haptic, user } = useTelegram();
@@ -47,6 +53,7 @@ export function PTIForm() {
   });
 
   const trailerNumber = watch('trailerNumber');
+  const hasTrailer = !!trailerNumber; // Reactive flag for trailer sections
 
   const handlePhotoCapture = useCallback((id: string, file: File) => {
     haptic('light');
@@ -71,6 +78,7 @@ export function PTIForm() {
     setManualChecks(prev => ({ ...prev, [id]: status }));
   }, [haptic]);
 
+  // Required photos
   const requiredTractorPhotos = TRACTOR_PHOTOS.filter(p => p.required);
   const requiredCouplingPhotos = hasTrailer ? COUPLING_PHOTOS.filter(p => p.required) : [];
   const requiredTrailerPhotos = hasTrailer ? TRAILER_PHOTOS.filter(p => p.required) : [];
@@ -79,14 +87,15 @@ export function PTIForm() {
   const completedPhotos = allRequiredPhotos.filter(p => photos[p.id]).length;
   const allPhotosComplete = completedPhotos === allRequiredPhotos.length;
 
-  // Critical checks must be either 'pass' or 'fail' (not 'unchecked')
-  const criticalChecks = MANUAL_CHECKS.filter(c => c.critical);
+  // Combine manual checks including trailer
+  const allChecks = hasTrailer ? [...MANUAL_CHECKS, ...TRAILER_CHECKS] : MANUAL_CHECKS;
+
+  const criticalChecks = allChecks.filter(c => c.critical);
   const completedCriticalChecks = criticalChecks.filter(
     c => manualChecks[c.id] === 'pass' || manualChecks[c.id] === 'fail'
   ).length;
   const allChecksComplete = completedCriticalChecks === criticalChecks.length;
 
-  // Count passed and failed
   const passedChecks = Object.values(manualChecks).filter(s => s === 'pass').length;
   const failedChecks = Object.values(manualChecks).filter(s => s === 'fail').length;
   const pendingChecks = criticalChecks.length - completedCriticalChecks;
@@ -94,10 +103,8 @@ export function PTIForm() {
   const canSubmit = allPhotosComplete && allChecksComplete;
 
   const checksByCategory: Record<string, CheckItem[]> = {};
-  MANUAL_CHECKS.forEach(check => {
-    if (!checksByCategory[check.category]) {
-      checksByCategory[check.category] = [];
-    }
+  allChecks.forEach(check => {
+    if (!checksByCategory[check.category]) checksByCategory[check.category] = [];
     checksByCategory[check.category].push(check);
   });
 
@@ -106,6 +113,7 @@ export function PTIForm() {
     brakes: '🛑 Brake Tests',
     steering: '🔧 Steering & Wheels',
     safety: '🦺 Safety Equipment',
+    trailer: '🚚 Trailer Checks',
   };
 
   const onSubmit = async (data: FormData) => {
@@ -142,14 +150,10 @@ export function PTIForm() {
 
       setUploadProgress('🔍 Analyzing with AI...');
 
-      // Convert manualChecks to backend format
       const manualChecksPayload: Record<string, boolean> = {};
       Object.entries(manualChecks).forEach(([id, status]) => {
-        if (status === 'pass') {
-          manualChecksPayload[id] = true;
-        } else if (status === 'fail') {
-          manualChecksPayload[id] = false;
-        }
+        if (status === 'pass') manualChecksPayload[id] = true;
+        else if (status === 'fail') manualChecksPayload[id] = false;
       });
 
       const payload = {
@@ -194,18 +198,15 @@ export function PTIForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-
       <Card title="Vehicle Information" icon={<Truck size={20} />}>
         <div className={styles.grid}>
           <Input label="Driver Name" {...register('driverName')} />
-
           <Input
             label="Unit Number"
             error={errors.unitNumber?.message}
             required
             {...register('unitNumber')}
           />
-
           <Controller
             name="odometer"
             control={control}
@@ -220,6 +221,15 @@ export function PTIForm() {
               />
             )}
           />
+          <Input
+            label="Trailer Number"
+            placeholder="Enter trailer number if available"
+            error={errors.trailerNumber?.message}
+            {...register('trailerNumber')}
+          />
+          <div className={styles.note}>
+            If you have a trailer, this input is <strong>required</strong>; otherwise, leave blank.
+          </div>
         </div>
       </Card>
 
@@ -244,7 +254,7 @@ export function PTIForm() {
         </div>
       </Card>
 
-      {(hasTrailer || trailerNumber) && (
+      {hasTrailer && (
         <>
           <Card
             title="Coupling Photos"
@@ -290,6 +300,7 @@ export function PTIForm() {
         </>
       )}
 
+      {/* Manual Checks */}
       <Card
         title="Manual Checks"
         subtitle={`${completedCriticalChecks}/${criticalChecks.length}`}
@@ -299,7 +310,6 @@ export function PTIForm() {
           Test each item and mark as <strong>OK</strong> or <strong>DEFECT</strong>
         </div>
 
-        {/* Summary Stats */}
         <div className={styles.checkSummary}>
           <div className={`${styles.summaryItem} ${styles.summaryPass}`}>
             <span className={styles.summaryCount} style={{ color: '#22c55e' }}>{passedChecks}</span>
@@ -331,20 +341,15 @@ export function PTIForm() {
                     <div className={styles.checkInfo}>
                       <span className={styles.checkLabel}>
                         {check.label}
-                        {check.critical && (
-                          <span className={styles.required}>*</span>
-                        )}
+                        {check.critical && <span className={styles.required}>*</span>}
                       </span>
-                      <span className={styles.checkDesc}>
-                        {check.description}
-                      </span>
+                      <span className={styles.checkDesc}>{check.description}</span>
                     </div>
                     <div className={styles.checkButtons}>
                       <button
                         type="button"
                         className={`${styles.checkBtn} ${styles.passBtn} ${status === 'pass' ? styles.active : ''}`}
                         onClick={() => handleManualCheck(check.id, status === 'pass' ? 'unchecked' : 'pass')}
-                        aria-label="OK"
                       >
                         <span className={styles.btnIcon}>✓</span>
                         <span className={styles.btnLabel}>OK</span>
@@ -353,7 +358,6 @@ export function PTIForm() {
                         type="button"
                         className={`${styles.checkBtn} ${styles.failBtn} ${status === 'fail' ? styles.active : ''}`}
                         onClick={() => handleManualCheck(check.id, status === 'fail' ? 'unchecked' : 'fail')}
-                        aria-label="Defect"
                       >
                         <span className={styles.btnIcon}>✗</span>
                         <span className={styles.btnLabel}>Defect</span>
@@ -367,6 +371,7 @@ export function PTIForm() {
         ))}
       </Card>
 
+      {/* Submit */}
       <div className={styles.submitArea}>
         <Button
           type="submit"
@@ -393,14 +398,10 @@ export function PTIForm() {
         {!canSubmit && !submitResult && (
           <div className={styles.remaining}>
             {!allPhotosComplete && (
-              <p>
-                📷 {allRequiredPhotos.length - completedPhotos} photos remaining
-              </p>
+              <p>📷 {allRequiredPhotos.length - completedPhotos} photos remaining</p>
             )}
             {!allChecksComplete && (
-              <p>
-                ☑️ {pendingChecks} checks remaining
-              </p>
+              <p>☑️ {pendingChecks} checks remaining</p>
             )}
           </div>
         )}
