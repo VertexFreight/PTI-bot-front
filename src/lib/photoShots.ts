@@ -201,7 +201,7 @@ export interface ManualCheck {
   id: string;
   label: string;
   description: string;
-  category: 'lights' | 'brakes' | 'steering' | 'safety';
+  category: 'lights' | 'brakes' | 'steering' | 'safety' | 'trailer';
   critical: boolean;
 }
 
@@ -284,6 +284,20 @@ export const MANUAL_CHECKS: ManualCheck[] = [
     critical: true,
   },
   {
+    id: 'steer_tires_ok',
+    label: 'Steer Tires OK',
+    description: 'Adequate tread depth, proper inflation, no cuts or sidewall damage',
+    category: 'steering',
+    critical: true,
+  },
+  {
+    id: 'drive_tires_ok',
+    label: 'Drive Tires OK',
+    description: 'Adequate tread depth, proper inflation, no mismatched sizes, no damage',
+    category: 'steering',
+    critical: true,
+  },
+  {
     id: 'horn_works',
     label: 'Horn Works',
     description: 'Both city and air horns functional',
@@ -310,6 +324,62 @@ export const MANUAL_CHECKS: ManualCheck[] = [
     description: 'All mirrors properly adjusted for driver',
     category: 'safety',
     critical: true,
+  },
+  {
+    id: 'trailer_lights_work',
+    label: 'Trailer Lights Working',
+    description: 'All trailer tail, brake, turn, and marker lights functional',
+    category: 'trailer',
+    critical: true,
+  },
+  {
+    id: 'trailer_brakes_ok',
+    label: 'Trailer Brakes Functional',
+    description: 'Trailer brakes engage and release properly via tractor controls',
+    category: 'trailer',
+    critical: true,
+  },
+  {
+    id: 'trailer_tires_ok',
+    label: 'Trailer Tires OK',
+    description: 'Adequate tread depth, proper inflation, no sidewall damage',
+    category: 'trailer',
+    critical: true,
+  },
+  {
+    id: 'trailer_coupling_secure',
+    label: 'Coupling / Fifth Wheel Secure',
+    description: 'Fifth wheel locked, kingpin engaged, jaws closed, release handle in',
+    category: 'trailer',
+    critical: true,
+  },
+  {
+    id: 'trailer_gladhands_ok',
+    label: 'Glad Hands & Air Lines Secure',
+    description: 'Air lines connected properly, no leaks, electrical cord plugged in',
+    category: 'trailer',
+    critical: true,
+  },
+  {
+    id: 'trailer_landing_gear_up',
+    label: 'Landing Gear Fully Raised',
+    description: 'Landing gear cranked up and handle secured',
+    category: 'trailer',
+    critical: true,
+  },
+  {
+    id: 'trailer_doors_secured',
+    label: 'Trailer Doors Secured',
+    description: 'Rear doors closed and latched, seals intact',
+    category: 'trailer',
+    critical: true,
+  },
+  {
+    id: 'trailer_reflective_tape',
+    label: 'DOT Reflective Tape Intact',
+    description: 'Reflective conspicuity tape on sides and rear in good condition',
+    category: 'trailer',
+    critical: false,
   },
 ];
 
