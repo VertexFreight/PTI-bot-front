@@ -24,7 +24,7 @@ export const TRACTOR_PHOTOS: PhotoShot[] = [
   {
     id: 'left_side',
     label: 'Left Side',
-    description: 'Driver side: body, fuel tank, door, steps',
+    description: 'Driver side: body, fuel tank, door, steps, marker lights',
     required: true,
     category: 'tractor',
     tips: [
@@ -37,27 +37,27 @@ export const TRACTOR_PHOTOS: PhotoShot[] = [
   {
     id: 'right_side',
     label: 'Right Side',
-    description: 'Passenger side: body, DEF tank, door, steps',
+    description: 'Passenger side: body, door, steps, marker lights',
     required: true,
     category: 'tractor',
     tips: [
       'Full side of truck',
-      'DEF tank and cap visible',
       'Door, steps, grab handles',
-      'Air tanks visible',
+      'Marker lights visible',
+      'Mud flaps visible',
     ],
   },
   {
     id: 'rear_drive_axle',
     label: 'Rear & Drive Axle',
-    description: 'Back of tractor: dual tires, frame, mud flaps',
+    description: 'Back of tractor: dual tires, frame, lights, mud flaps',
     required: true,
     category: 'tractor',
     tips: [
       'Both dual tires visible',
       'Frame and mud flaps',
-      'Tail lights (if no trailer)',
-      'Suspension visible',
+      'Tail lights and reflectors',
+      'Lug nuts visible',
     ],
   },
   {
@@ -128,14 +128,14 @@ export const TRACTOR_PHOTOS: PhotoShot[] = [
   {
     id: 'interior',
     label: 'Interior/Cab',
-    description: 'Inside cab: seat belt, fire extinguisher, safety equipment',
+    description: 'Inside cab: seat belt, fire extinguisher, documents',
     required: true,
     category: 'tractor',
     tips: [
       'Seat belt visible',
       'Fire extinguisher mounted and visible',
-      'Safety triangles location',
-      'Registration/insurance visible',
+      'Registration/insurance docs visible',
+      'Cab clean, no loose items',
     ],
   },
   {
