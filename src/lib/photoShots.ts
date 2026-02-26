@@ -100,6 +100,32 @@ export const TRACTOR_PHOTOS: PhotoShot[] = [
     ],
   },
   {
+    id: 'under_driver_axle',
+    label: 'Under Driver Axle',
+    description: 'Low angle: brake drum, slack adjuster, suspension, air lines',
+    required: true,
+    category: 'tractor',
+    tips: [
+      'Crouch down and aim phone under the truck',
+      'Brake drum and chamber must be visible',
+      'Slack adjuster arm clearly visible',
+      'Suspension springs / air bags in frame',
+    ],
+  },
+  {
+    id: 'under_passenger_axle',
+    label: 'Under Passenger Axle',
+    description: 'Low angle: brake drum, slack adjuster, suspension, air lines',
+    required: true,
+    category: 'tractor',
+    tips: [
+      'Crouch down and aim phone under the truck',
+      'Brake drum and chamber must be visible',
+      'Slack adjuster arm clearly visible',
+      'Suspension springs / air bags in frame',
+    ],
+  },
+  {
     id: 'interior',
     label: 'Interior/Cab',
     description: 'Inside cab: seat belt, fire extinguisher, safety equipment',
@@ -191,6 +217,19 @@ export const TRAILER_PHOTOS: PhotoShot[] = [
       'Show wheels and side panels',
       'No missing parts',
       'No damage or scratches',
+    ],
+  },
+  {
+    id: 'under_trailer_axle',
+    label: 'Under Trailer Axle',
+    description: 'Low angle: brake drums, slack adjusters, suspension, air lines',
+    required: true,
+    category: 'trailer',
+    tips: [
+      'Crouch down and aim phone under trailer at wheel area',
+      'Brake drums and chambers visible',
+      'Slack adjuster arms visible',
+      'Suspension (air bags or leaf springs) in frame',
     ],
   },
 ];
